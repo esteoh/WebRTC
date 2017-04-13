@@ -1,0 +1,17 @@
+{
+  "name": "trial-webrtc",
+  "version": "0.1.0",
+  "description": "Implement a simple audio/video chat by using WebRTC",
+  "keywords": [
+    "WebRTC",
+    "Video",
+    "Audio",
+    "JavaScript",
+    "HTML"
+  ],
+  "author": "esteoh",
+  "license": "MIT",
+  "dependencies": {
+   
+  }
+}
