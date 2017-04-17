@@ -1,0 +1,11 @@
+{
+   "name": "webrtc-videochat",
+   "version": "0.1.0",
+   "description": "webrtc-videochat",
+   "author": "Author - TutorialPoint",
+   "license": "BSD-2-Clause",
+   "repository": {
+    "type": "git",
+    "url": "git+https://github.com/esteoh/WebRTC.git"
+   }
+}
