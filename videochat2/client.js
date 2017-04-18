@@ -3,14 +3,14 @@ var name;
 var connectedUser;
 
 //connecting to the signaling server
-var conn = new WebSocket('ws://localhost:9090');
+var wsconn = new WebSocket('ws://localhost:9090');
 
-conn.onopen = function () {
+wsconn.onopen = function () {
     console.log("Connected to the signaling server");
 };
 
 //when received a message from the signaling sevrer
-conn.onmessage = function (msg) {
+wsconn.onmessage = function (msg) {
     console.log("Got message", msg.data);
 
     var data = JSON.parse(msg.data);
@@ -21,7 +21,7 @@ conn.onmessage = function (msg) {
             break;
         //when somebody wants to call us
         case "offer":
-            handleOffer(date.offer, data.name);
+            handleOffer(data.offer, data.name);
             break;
         case "answer":
             handleAnswer(data.answer);
@@ -38,7 +38,7 @@ conn.onmessage = function (msg) {
     }
 };
 
-conn.onerror = function (err) {
+wsconn.onerror = function (err) {
     console.log("Got error", err);
 };
 
@@ -49,7 +49,7 @@ function send( message) {
         message.name = connectedUser;
     }
 
-    conn.send(JSON.stringify(message));
+    wsconn.send(JSON.stringify(message));
 };
 
 
@@ -70,7 +70,7 @@ var hangUpBtn = document.querySelector('#hangUpBtn');
 var localVideo = document.querySelector('#localVideo'); 
 var remoteVideo = document.querySelector('#remoteVideo');
  
-var yourConn; 
+var yourRtcConn; 
 var stream;
 
 //hide call page
@@ -88,7 +88,7 @@ loginBtn.addEventListener("click", function (event) {
     }
 });
 
-function handleLogin(success0) {
+function handleLogin(success) {
 
     if (success === false) {
         alert("Oops...Please try a different username");
@@ -113,18 +113,18 @@ function handleLogin(success0) {
                 "iceServers": [{ "url": "stun:stun2.1.google.com:19320" }]
             };
 
-            yourConn = new RTCPeerConnection(configuration);
+            yourRtcConn = new RTCPeerConnection(configuration);
 
             //setup stream listening
-            yourConn.addStream(stream);
+            yourRtcConn.addStream(stream);
 
             //when a remote user adds stream to the peer connection, we display it
-            yourConn.onaddstream = function (e) {
+            yourRtcConn.onaddstream = function (e) {
                 remoteVideo.src = window.URL.createObjectURL(e.stream);
             };
 
             //setup ice handling
-            yourConn.onicecandidate = function (event) {
+            yourRtcConn.onicecandidate = function (event) {
 
                 if (event.candidate) {
                     send({
@@ -139,4 +139,79 @@ function handleLogin(success0) {
             console.log(error);
         });
     }
+};
+
+//initiating a call
+callBtn.addEventListener("click", function () {
+    var callToUsername = callToUsernameInput.value;
+
+    if (callToUsername.length > 0) {
+
+        connectedUser = callToUsername;
+
+        //create an offer
+        yourRtcConn.createOffer(function (offer) {
+            send({
+                type: "offer",
+                offer: offer
+            });
+
+            yourRtcConn.setLocalDescription(offer);
+
+        }, function (error) {
+            alert("Error when creating an offer");
+        });
+    }
+});
+
+//when somebody send us an offer
+function handleOffer(offer, name) {
+    connectedUser = name;
+    yourRtcConn.setRemoteDescription(new RTCSessionDescription(offer));
+
+    //create an answer to an offer
+    yourRtcConn.createAnswer(function (answer) {
+        yourRtcConn.setLocalDescription(answer);
+
+        send({
+            type: "answer",
+            answer: answer
+        });
+
+    }, function (error) {
+        alert("Error when creating an answer");
+    });
+};
+
+//when we got an answer from remote user
+function handleAnswer(answer) {
+    yourRtcConn.setRemoteDescription(new RTCSessionDescription(answer));
+};
+
+//when we got ice candidate from remote user
+function handleCandidate(candidate) {
+    yourRtcConn.addIceCandidate(new RTCIceCandidate(candidate));
+};
+
+//hang up
+hangUpBtn.addEventListener("click", function () {
+
+    send({
+        type: "leave"
+    });
+
+    handleLeave();
+});
+
+function handleLeave() {
+    // connectedUser = null;
+    // remoteVideo.src = null;
+    connectedUser = "";
+    remoteVideo.src = "";
+
+    yourRtcConn.close();
+    // yourRtcConn.onicecandidate = null;
+    // yourRtcConn.onaddstream = null;
+    yourRtcConn.onicecandidate = "";
+    yourRtcConn.onaddstream = "";
 };
