@@ -204,14 +204,14 @@ hangUpBtn.addEventListener("click", function () {
 });
 
 function handleLeave() {
-    // connectedUser = null;
-    // remoteVideo.src = null;
-    connectedUser = "";
-    remoteVideo.src = "";
+    connectedUser = null;
+    remoteVideo.src = null;
+    // connectedUser = "";
+    // remoteVideo.src = "";
 
     yourRtcConn.close();
-    // yourRtcConn.onicecandidate = null;
-    // yourRtcConn.onaddstream = null;
-    yourRtcConn.onicecandidate = "";
-    yourRtcConn.onaddstream = "";
+    yourRtcConn.onicecandidate = null;
+    yourRtcConn.onaddstream = null;
+    // yourRtcConn.onicecandidate = "";
+    // yourRtcConn.onaddstream = "";
 };
