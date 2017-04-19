@@ -146,7 +146,7 @@ wss.on('connection', function(connection) {
         }
     });
 
-    connection.send(JSON.stringify("Hello from world"));
+    connection.send(JSON.stringify("Hello from server"));
     /*
     sendTo(connection, {
         type: 'hello',
