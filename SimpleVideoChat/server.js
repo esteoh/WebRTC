@@ -1,6 +1,7 @@
 const WebSocketServer = require('ws').Server,
   express = require('express'),
   https = require('https'),
+  // http = require('http'),
   app = express(),
   fs = require('fs');
 
@@ -21,12 +22,16 @@ app.use(function(req, res, next) {
 });
 
 // start server (listen on port 443 - SSL)
-sslSrv = https.createServer(options, app).listen(443);
-console.log("The HTTPS server is up and running");
+// sslSrv = https.createServer(options, app).listen(9090);
+// console.log("The HTTPS server is up and running");
+
+// start server (listen on port 9090)
+sslSrv = https.createServer(options, app).listen(9090);
+console.log("The HTTP server is up and running");
 
 // create the WebSocket server
 wss = new WebSocketServer({server: sslSrv});  
-console.log("WebSocket Secure server is up and running.");
+console.log("WebSocket server is up and running.");
 
 /** successful connection */
 wss.on('connection', function (client) {
